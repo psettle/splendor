@@ -13,10 +13,11 @@ void Player::RemoveGems(Gemset const& aRemove) {
   mHeld = Gemset::Sub(mHeld, aRemove);
 }
 
-void Player::AddDevelopmentCard(DevelopmentCard aCard) {
+void Player::AddDevelopmentCard(DevelopmentCard aCard, bool aRevealed) {
   for (auto& slot : mReserved) {
     if (!slot) {
       slot = aCard;
+      slot.SetRevealed(aRevealed);
       return;
     }
   }

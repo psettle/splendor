@@ -27,6 +27,10 @@ class NobleCard {
 
   bool operator==(NobleCard const& aOther) const = default;
 
+  bool operator<(NobleCard const& aOther) const {
+    return mIndex < aOther.mIndex;
+  }
+
  private:
   class Internal {
    public:

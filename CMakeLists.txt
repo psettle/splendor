@@ -4,7 +4,7 @@ project(splendor)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_FLAGS_DEBUG  "-g -O0")
-set(CMAKE_CXX_FLAGS_RELEASE  "-O3")
+set(CMAKE_CXX_FLAGS_RELEASE  "-g -O3")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
@@ -19,6 +19,7 @@ include_directories(src/view)
 add_executable(splendor src/main.cpp)
 target_sources(splendor PRIVATE src/agent/agent_PrunedRandom.cpp)
 target_sources(splendor PRIVATE src/agent/agent_MonteCarloTreeSearch.cpp)
+target_sources(splendor PRIVATE src/agent/agent_SmartRollout.cpp)
 target_sources(splendor PRIVATE src/engine/engine_GameState.cpp)
 target_sources(splendor PRIVATE src/engine/engine_Runner.cpp)
 target_sources(splendor PRIVATE src/engine/engine_DevelopmentCard.cpp)

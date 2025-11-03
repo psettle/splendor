@@ -18,8 +18,7 @@ class PrunedRandom : public engine::IAgent {
 
   void OnSetup(engine::GameState const& aState, uint8 aPlayerId) override {}
 
-  engine::Move OnTurn(engine::GameState const& aState,
-                      std::vector<engine::Move>&& aMoves) override;
+  engine::Move OnTurn(engine::GameState const& aState) override;
 
  private:
   Generator& mGenerator;

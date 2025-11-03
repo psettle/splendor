@@ -1,17 +1,20 @@
 #include "agent_PrunedRandom.hpp"
 
+#include "engine_GameState.hpp"
 #include "engine_Move.hpp"
 
 namespace agent {
 
-engine::Move PrunedRandom::OnTurn(engine::GameState const& aState,
-                                  std::vector<engine::Move>&& aMoves) {
+engine::Move PrunedRandom::OnTurn(engine::GameState const& aState) {
+  auto state = aState;
+  state.Determinize(mGenerator);
+  auto moves = state.GetMoves();
   std::vector<engine::Move> purchase{};
   std::vector<engine::Move> collect{};
-  purchase.reserve(aMoves.size());
-  collect.reserve(aMoves.size());
+  purchase.reserve(moves.size());
+  collect.reserve(moves.size());
 
-  for (auto const& move : aMoves) {
+  for (auto const& move : moves) {
     if (move.mType == engine::MoveType::kCollect) {
       collect.emplace_back(move);
     } else if (move.mType == engine::MoveType::kPurchase) {
@@ -27,7 +30,7 @@ engine::Move PrunedRandom::OnTurn(engine::GameState const& aState,
     return collect[mGenerator() % collect.size()];
   }
 
-  return aMoves[mGenerator() % aMoves.size()];
+  return moves[mGenerator() % moves.size()];
 }
 
 }  // namespace agent

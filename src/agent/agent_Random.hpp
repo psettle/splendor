@@ -1,6 +1,7 @@
 #ifndef AGENT_RANDOM_HPP
 #define AGENT_RANDOM_HPP
 
+#include "engine_GameState.hpp"
 #include "engine_IAgent.hpp"
 #include "engine_Move.hpp"
 #include "util_General.hpp"
@@ -18,9 +19,11 @@ class Random : public engine::IAgent {
 
   void OnSetup(engine::GameState const& aState, uint8 aPlayerId) override {}
 
-  engine::Move OnTurn(engine::GameState const& aState,
-                      std::vector<engine::Move>&& aMoves) override {
-    return aMoves[mGenerator() % aMoves.size()];
+  engine::Move OnTurn(engine::GameState const& aState) override {
+    auto state = aState;
+    state.Determinize(mGenerator);
+    auto moves = state.GetMoves();
+    return moves[mGenerator() % moves.size()];
   }
 
  private:

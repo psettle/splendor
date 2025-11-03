@@ -1,7 +1,9 @@
 #ifndef ENGINE_MOVE_HPP
 #define ENGINE_MOVE_HPP
 
+#include "engine_DevelopmentCard.hpp"
 #include "engine_Gemset.hpp"
+#include "engine_NobleCard.hpp"
 #include "util_General.hpp"
 
 namespace engine {
@@ -22,18 +24,16 @@ struct Move {
       Gemset mTake;
     } mCollect;
     struct {
-      uint8 mLevel;  // 3 == HAND
-      uint8 mIndex;
+      DevelopmentCard mCard;
     } mPurchase;
     struct {
-      uint8 mLevel;
-      uint8 mIndex;
+      DevelopmentCard mCard;
     } mReserveFaceUp;
     struct {
       uint8 mLevel;
     } mReserveFaceDown;
     struct {
-      uint8 mIndex;
+      NobleCard mNoble;
     } mNoble;
     struct {
       Gemset mGive;
@@ -47,10 +47,10 @@ struct Move {
     return move;
   }
 
-  static Move MakeNobleMove(uint8 aIndex) {
+  static Move MakeNobleMove(NobleCard const& aNoble) {
     Move move{};
     move.mType = MoveType::kNoble;
-    move.mNoble.mIndex = aIndex;
+    move.mNoble.mNoble = aNoble;
     return move;
   }
 
@@ -61,11 +61,11 @@ struct Move {
     return move;
   }
 
-  static Move MakePurchaseMove(uint8 aLevel, uint8 aIndex) {
+  static Move MakePurchaseMove(DevelopmentCard const& aCard) {
     Move move{};
     move.mType = MoveType::kPurchase;
-    move.mPurchase.mIndex = aIndex;
-    move.mPurchase.mLevel = aLevel;
+    move.mPurchase.mCard = aCard;
+    move.mPurchase.mCard.SetRevealed(true);
     return move;
   }
 
@@ -76,12 +76,62 @@ struct Move {
     return move;
   }
 
-  static Move MakeReserveMove(uint8 aLevel, uint8 aIndex) {
+  static Move MakeReserveMove(DevelopmentCard const& aCard) {
     Move move{};
     move.mType = MoveType::kReserveFaceUp;
-    move.mReserveFaceUp.mIndex = aIndex;
-    move.mReserveFaceUp.mLevel = aLevel;
+    move.mReserveFaceUp.mCard = aCard;
+    move.mReserveFaceUp.mCard.SetRevealed(true);
     return move;
+  }
+
+  bool operator==(Move const& aOther) const {
+    if (mType != aOther.mType) {
+      return false;
+    }
+
+    switch (mType) {
+      case MoveType::kCollect:
+        return mCollect.mTake == aOther.mCollect.mTake;
+      case MoveType::kPurchase:
+        return mPurchase.mCard == aOther.mPurchase.mCard;
+      case MoveType::kReserveFaceUp:
+        return mReserveFaceUp.mCard == aOther.mReserveFaceUp.mCard;
+      case MoveType::kReserveFaceDown:
+        return mReserveFaceDown.mLevel == aOther.mReserveFaceDown.mLevel;
+      case MoveType::kNoble:
+        return mNoble.mNoble == aOther.mNoble.mNoble;
+      case MoveType::kReturn:
+        return mReturn.mGive == aOther.mReturn.mGive;
+      default:
+        return true;
+    }
+  }
+
+  bool operator<(Move const& aOther) const {
+    if (mType < aOther.mType) {
+      return true;
+    }
+
+    switch (mType) {
+      case MoveType::kCollect:
+        return mCollect.mTake < aOther.mCollect.mTake;
+      case MoveType::kPurchase:
+        return mPurchase.mCard < aOther.mPurchase.mCard;
+      case MoveType::kReserveFaceUp:
+        return mReserveFaceUp.mCard < aOther.mReserveFaceUp.mCard;
+      case MoveType::kReserveFaceDown:
+        return mReserveFaceDown.mLevel < aOther.mReserveFaceDown.mLevel;
+      case MoveType::kNoble:
+        return mNoble.mNoble < aOther.mNoble.mNoble;
+      case MoveType::kReturn:
+        return mReturn.mGive < aOther.mReturn.mGive;
+      default:
+        return false;
+    }
+  }
+
+  bool operator>(Move const& aOther) const {
+    return !(*this < aOther) && !(*this == aOther);
   }
 };
 

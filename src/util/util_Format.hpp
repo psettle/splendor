@@ -17,6 +17,8 @@ class Move;
 
 namespace util {
 
+void ShowState(std::ostream& aOut, engine::GameState const& aState);
+
 void ShowGemset(std::ostream& aOut, engine::Gemset const& aSet,
                 std::optional<uint8> aGold = std::nullopt);
 
@@ -26,12 +28,11 @@ void ShowCost(std::ostream& aOut, engine::Gemset const& aCost,
 void ShowNoble(std::ostream& aOut, engine::NobleCard const& aNoble);
 
 void ShowCard(std::ostream& aOut, engine::DevelopmentCard const& aCard,
-              std::string const& aPrefix = "");
+              std::string const& aPrefix = "", bool aShowHidden = false);
 
 void ShowPlayer(std::ostream& aOut, engine::Player const& aPlayer);
 
-void ShowMove(std::ostream& aOut, engine::GameState const& aState,
-              uint8 aPlayer, engine::Move const& aMove);
+void ShowMove(std::ostream& aOut, uint8 aPlayer, engine::Move const& aMove);
 
 }  // namespace util
 

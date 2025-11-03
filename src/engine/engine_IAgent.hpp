@@ -15,7 +15,7 @@ class IAgent {
   virtual ~IAgent() = default;
 
   virtual void OnSetup(GameState const& aState, uint8 aPlayerId) = 0;
-  virtual Move OnTurn(GameState const& aState, std::vector<Move>&& aMoves) = 0;
+  virtual Move OnTurn(GameState const& aState) = 0;
 };
 
 }  // namespace engine

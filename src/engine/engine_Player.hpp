@@ -23,10 +23,11 @@ class Player {
   void AddGems(Gemset const& aTake);
   void RemoveGems(Gemset const& aRemove);
 
-  void AddDevelopmentCard(DevelopmentCard aCard);
+  void AddDevelopmentCard(DevelopmentCard aCard, bool aRevealed);
   DevelopmentCard RemoveDevelopmentCard(uint8 aIndex);
 
   auto const& GetReservedDevelopmentCards() const { return mReserved; }
+  auto& GetReservedDevelopmentCards() { return mReserved; }
 
   uint8 GetGold() const { return mGold; }
   void AddGold(uint8 aCount) { mGold += aCount; }

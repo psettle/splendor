@@ -2,6 +2,7 @@
 #define ENGINE_GAMESTATE_HPP
 
 #include <array>
+#include <cstring>
 #include <optional>
 #include <vector>
 
@@ -33,7 +34,19 @@ class GameState {
   bool IsTerminal() const;
   void DoMove(Move const& aMove, Generator& aGenerator);
 
-  bool operator==(GameState const& aOther) const = default;
+  bool operator==(GameState const& aOther) const {
+    ASSERT(mDeterminized == aOther.mDeterminized);
+
+    return 0 == memcmp(this, &aOther, sizeof(*this));
+  }
+
+  GameState MaskHiddenInformation() {
+    return MaskHiddenInformation(mNextPlayer);
+  }
+  GameState MaskHiddenInformation(uint8 aPlayer);
+  void Determinize(Generator& aGenerator);
+
+  bool HasHiddenInformation(uint8 aPlayer) const;
 
  private:
   static std::size_t constexpr kDevelopmentCardRevealCount = 4u;
@@ -43,31 +56,27 @@ class GameState {
   static std::size_t constexpr kMaxCollectCount = 3u;
 
   void DoCollectMove(Gemset const& aTake);
-  void DoPurchaseMove(uint8 aLevel, uint8 aIndex, Generator& aGenerator);
-  void DoReserveFaceUpMove(uint8 aLevel, uint8 aIndex, Generator& aGenerator);
+  void DoPurchaseMove(DevelopmentCard const& aCard, Generator& aGenerator);
+  void DoReserveFaceUpMove(DevelopmentCard const& aCard, Generator& aGenerator);
   void DoReserveFaceDownMove(uint8 aLevel, Generator& aGenerator);
-  void DoReserveMove(DevelopmentCard aCard);
-  void DoNobleMove(uint8 aIndex);
+  void DoReserveMove(DevelopmentCard const& aCard, bool aRevealed);
+  void DoNobleMove(NobleCard const& aNoble);
   void DoReturnMove(Gemset const& aGive);
 
   DevelopmentCard ReplaceCard(uint8 aLevel, uint8 aIndex,
                               Generator& aGenerator);
 
   void GetReturnMoves(std::vector<Move>& aMoves) const;
-  void GetReturnMoves(std::vector<Move>& aMoves, std::size_t aColorIndex,
-                      std::size_t aToReturnCount, Gemset aCurrent) const;
   void GetNobleMoves(std::vector<Move>& aMoves) const {
     GetNobleMoves(&aMoves);
   }
   std::size_t GetNobleMoves(std::vector<Move>* aMoves) const;
   bool HasNobleMoves() const { return GetNobleMoves(nullptr) > 0; }
   void GetCollectMoves(std::vector<Move>& aMoves) const;
-  // void GetCollectMoves(std::vector<Move>& aMoves, std::size_t aColorIndex,
-  //                      std::size_t aMaxCollectCount, Gemset aCurrent) const;
   void GetCollectMoves(std::vector<Move>& aMoves,
                        std::size_t aMaxCollectCount) const;
   void GetPurchaseMoves(std::vector<Move>& aMoves) const;
-  void TryAddPurchaseMove(std::vector<Move>& aMoves, uint8 aLevel, uint8 aIndex,
+  void TryAddPurchaseMove(std::vector<Move>& aMoves,
                           DevelopmentCard const& aCard) const;
   void GetReserveMoves(std::vector<Move>& aMoves) const;
 
@@ -82,6 +91,7 @@ class GameState {
   Gemset mAvailable{4u};
   uint8 mGold{5u};
   uint8 mNextPlayer;
+  bool mDeterminized{true};
 };
 
 }  // namespace engine

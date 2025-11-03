@@ -27,8 +27,7 @@ std::optional<uint8> Runner::RunGame(GameState& aState,
 
     uint8 nextPlayer = aState.GetNextPlayer();
     auto agent = mAgents[nextPlayer];
-    auto moves = aState.GetMoves();
-    auto move = agent->OnTurn(aState, std::move(moves));
+    auto move = agent->OnTurn(aState.MaskHiddenInformation());
 
     for (auto const& view : mViews) {
       view->ShowTurn(aState, move, nextPlayer);

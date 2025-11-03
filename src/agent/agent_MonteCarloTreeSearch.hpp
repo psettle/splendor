@@ -6,7 +6,7 @@
 #include <optional>
 #include <vector>
 
-#include "agent_PrunedRandom.hpp"
+#include "agent_SmartRollout.hpp"
 #include "engine_IAgent.hpp"
 #include "engine_Runner.hpp"
 #include "util_General.hpp"
@@ -20,10 +20,15 @@ class Move;
 namespace agent {
 
 struct MonteCarloTreeSearchOptions {
-  std::size_t mMaxNextStates{std::numeric_limits<std::size_t>::max()};
   float mTimeoutSeconds{0.1f};
-  float mUpperConfidenceBound{2.0f};
-  bool mTraceRandomMoves{false};
+  float mUpperConfidenceBound{0.8f};
+  bool mTraceHistory{true};
+  std::unique_ptr<engine::IAgent> (*mMakeRolloutPolicy)(
+      util::Generator& aGenerator) =
+      [](util::Generator& aGenerator) -> std::unique_ptr<engine::IAgent> {
+    return std::make_unique<agent::SmartRollout>(aGenerator);
+  };
+  bool mDebug{false};
 };
 
 class MonteCarloTreeSearch : public engine::IAgent {
@@ -38,7 +43,7 @@ class MonteCarloTreeSearch : public engine::IAgent {
   ~MonteCarloTreeSearch() override;
 
   void OnSetup(GameState const& aState, uint8 aPlayerId) override;
-  Move OnTurn(GameState const& aState, std::vector<Move>&& aMoves) override;
+  Move OnTurn(GameState const& aState) override;
 
  private:
   using TimeStamp = util::TimeStamp;
@@ -46,8 +51,9 @@ class MonteCarloTreeSearch : public engine::IAgent {
   struct Node;
   struct MoveNode;
   struct StateNode;
+  class MoveNodeSet;
 
-  float Heuristic(StateNode const& aLeaf) const;
+  char Heuristic(StateNode const& aLeaf) const;
 
   bool CheckLimit(TimeStamp const& aStart) {
     return aStart.Since() >= mOptions.mTimeoutSeconds;
@@ -59,16 +65,16 @@ class MonteCarloTreeSearch : public engine::IAgent {
   void Select(std::vector<Node*>& aPath);
   void Expand(std::vector<Node*>& aPath);
   StateNode* TraceMove(GameState const& aStart, MoveNode* aMoveNode);
-  float Simulate(GameState const& aState) const;
-  float Score(std::optional<uint8> aWinner) const;
-  static void Backup(std::vector<Node*> const& aPath, float aScore);
+  char Simulate(GameState const& aState) const;
+  char Score(std::optional<uint8> aWinner) const;
+  static void Backup(std::vector<Node*> const& aPath, char aScore);
 
   std::unique_ptr<MoveNode> mPreviousMove{};
   uint8 mPlayerId{};
   engine::Runner mRunner{};
   Generator& mGenerator;
   Options mOptions;
-  agent::PrunedRandom mRolloutAgent;
+  std::unique_ptr<engine::IAgent> mRolloutAgent{};
 };
 }  // namespace agent
 
