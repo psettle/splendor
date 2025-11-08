@@ -1,5 +1,5 @@
-#ifndef __INCLUDE_GUARD_UTIL_TIMESTAMP_HPP
-#define __INCLUDE_GUARD_UTIL_TIMESTAMP_HPP
+#ifndef UTIL_TIMESTAMP_HPP
+#define UTIL_TIMESTAMP_HPP
 
 #include <chrono>
 
@@ -10,8 +10,8 @@ class TimeStamp {
 
   TimeStamp() : t_(Time::now()) {}
 
-  double operator-(TimeStamp const& other) const {
-    auto diff = t_ - other.t_;
+  double operator-(TimeStamp const& aOther) const {
+    auto diff = t_ - aOther.t_;
     return diff.count() * 0.000000001;
   }
 
@@ -25,4 +25,4 @@ class TimeStamp {
 };
 }  // namespace util
 
-#endif /* __INCLUDE_GUARD_UTIL_TIMESTAMP_HPP */
+#endif  // UTIL_TIMESTAMP_HPP

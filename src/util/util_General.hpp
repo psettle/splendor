@@ -12,13 +12,13 @@
 
 static bool constexpr kEnableAsserts = true;
 
-#define ASSERT(cond)                                                     \
-  do {                                                                   \
-    if constexpr (kEnableAsserts) {                                      \
-      if (!(cond)) {                                                     \
-        throw std::logic_error(__FILE__ stringize(__LINE__) ": " #cond); \
-      }                                                                  \
-    }                                                                    \
+#define ASSERT(cond)                                                        \
+  do {                                                                      \
+    if constexpr (kEnableAsserts) {                                         \
+      if (!(cond)) {                                                        \
+        throw std::logic_error(__FILE__ ":" stringize(__LINE__) " " #cond); \
+      }                                                                     \
+    }                                                                       \
   } while (false)
 
 #define ASSERT_ALWAYS() ASSERT(false)

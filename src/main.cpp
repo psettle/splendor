@@ -47,9 +47,8 @@ int main() {
   mcts1.mOptions.mTimeoutSeconds = timeout;
   mcts1.mOptions.mMakeRolloutPolicy =
       [](util::Generator& aGenerator) -> std::unique_ptr<engine::IAgent> {
-    return std::make_unique<agent::Random>(aGenerator);
+    return std::make_unique<agent::SmartRollout>(aGenerator);
   };
-  mcts1.mOptions.mUpperConfidenceBound = 2.0f;
 
   mcts2.mOptions.mTimeoutSeconds = timeout;
   mcts2.mOptions.mMakeRolloutPolicy =
@@ -59,28 +58,29 @@ int main() {
 
   // SimpleFactory<agent::PrunedRandom> mcts1;
   // OptionsFactory<agent::SmartRollout> mcts2;
-  // for (std::size_t i = 1u; i < 100; ++i) {
-  std::size_t mcts1Wins = 0u;
-  std::size_t mcts2Wins = 0u;
+  for (std::size_t i = 2u; i < 10; ++i) {
+    std::size_t mcts1Wins = 0u;
+    std::size_t mcts2Wins = 0u;
 
-  mcts2.mOptions.mUpperConfidenceBound = 0.8f;
+    mcts2.mOptions.mSimsPerRollout = i;
 
-  auto episodes = test::CollectEpisodes(mcts1, mcts2, 256, 16);
+    auto episodes = test::CollectEpisodes(mcts1, mcts2, 2048, 16);
 
-  for (auto const& episode : episodes) {
-    auto winner = episode.mFrames.front().mWinner;
+    for (auto const& episode : episodes) {
+      auto winner = episode.mFrames.front().mWinner;
 
-    if (winner) {
-      if (winner.value() == 0) {
-        mcts1Wins++;
-      } else {
-        mcts2Wins++;
+      if (winner) {
+        if (winner.value() == 0) {
+          mcts1Wins++;
+        } else {
+          mcts2Wins++;
+        }
       }
     }
-  }
 
-  std::cout << " 1: " << mcts1Wins << " 2: " << mcts2Wins << std::endl;
-  //}
+    std::cout << "sims: " << i << " 1: " << mcts1Wins << " 2: " << mcts2Wins
+              << std::endl;
+  }
   return 0;
 }
 #else
@@ -88,7 +88,7 @@ int main() {
   auto generator = util::MakeGenerator();
 
   agent::MonteCarloTreeSearch::Options options{};
-  options.mTimeoutSeconds = 30.0f;
+  options.mTimeoutSeconds = 5.0f;
   options.mDebug = true;
 
   engine::Runner runner;

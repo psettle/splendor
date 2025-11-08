@@ -29,6 +29,7 @@ struct MonteCarloTreeSearchOptions {
     return std::make_unique<agent::SmartRollout>(aGenerator);
   };
   bool mDebug{false};
+  std::size_t mSimsPerRollout{5u};
 };
 
 class MonteCarloTreeSearch : public engine::IAgent {
@@ -67,7 +68,7 @@ class MonteCarloTreeSearch : public engine::IAgent {
   StateNode* TraceMove(GameState const& aStart, MoveNode* aMoveNode);
   char Simulate(GameState const& aState) const;
   char Score(std::optional<uint8> aWinner) const;
-  static void Backup(std::vector<Node*> const& aPath, char aScore);
+  void Backup(std::vector<Node*> const& aPath, char aScore) const;
 
   std::unique_ptr<MoveNode> mPreviousMove{};
   uint8 mPlayerId{};

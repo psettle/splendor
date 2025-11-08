@@ -75,6 +75,8 @@ struct MonteCarloTreeSearch::StateNode : public Node {
   }
   void InitRollout(Generator& aGenerator) {
     ResetRollout();
+    mDeterminized = mState;
+    mDeterminized.value().Determinize(aGenerator);
     IterateMoves(
         [&](MoveNode& aNode) {
           aNode.mAvailableCount++;
@@ -90,8 +92,6 @@ struct MonteCarloTreeSearch::StateNode : public Node {
  private:
   template <class Callable>
   void IterateMoves(Callable&& aCallable, Generator& aGenerator) {
-    mDeterminized = mState;
-    mDeterminized.value().Determinize(aGenerator);
     mMoveNodes.UpsertMoves(mDeterminized.value(), std::move(aCallable));
   }
 
@@ -190,7 +190,11 @@ engine::Move MonteCarloTreeSearch::OnTurn(GameState const& aState) {
 }
 
 char MonteCarloTreeSearch::Heuristic(StateNode const& aLeaf) const {
-  return Simulate(aLeaf.mState);
+  char score{0};
+  for (std::size_t i = 0u; i < mOptions.mSimsPerRollout; ++i) {
+    score += Simulate(aLeaf.mState);
+  }
+  return score;
 }
 
 void MonteCarloTreeSearch::ResetHistory() { mPreviousMove.reset(); }
@@ -338,9 +342,9 @@ char MonteCarloTreeSearch::Score(std::optional<uint8> aWinner) const {
 }
 
 void MonteCarloTreeSearch::Backup(std::vector<Node*> const& aPath,
-                                  char aScore) {
+                                  char aScore) const {
   for (auto node : aPath) {
-    node->mRolloutCount++;
+    node->mRolloutCount += mOptions.mSimsPerRollout;
     node->mIntScore += aScore;
   }
 }

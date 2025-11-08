@@ -70,8 +70,8 @@ static void* RunTestsThread(void* aUserData) {
 
     pthread_mutex_lock(testControl.mMutex);
     testControl.mAllEpisodes->emplace_back(std::move(result));
-    std::cout << testControl.mAllEpisodes->size() << std::endl;
-    std::cout.flush();
+    // std::cout << ".";
+    // std::cout.flush();
     pthread_mutex_unlock(testControl.mMutex);
   }
 
